@@ -22,6 +22,8 @@ import android.graphics.Rect;
 import com.google.firebase.ml.vision.cloud.text.FirebaseVisionCloudText;
 import com.google.firebase.codelab.mlkit.GraphicOverlay.Graphic;
 
+import java.util.List;
+
 
 /**
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
