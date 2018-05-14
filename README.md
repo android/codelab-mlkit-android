@@ -2,8 +2,8 @@ Codelabs for ML Kit for Firebase
 ============
 
 This repository contains two codelabs for ML Kit for Firebase:
-* Recognize text in images with ML Kit for Firebase
-* Identify objects in images using custom machine learning models with ML Kit for Firebase
+* [Recognize text in images with ML Kit for Firebase](https://g.co/codelabs/mlkit-android)
+* [Identify objects in images using custom machine learning models with ML Kit for Firebase](https://g.co/codelabs/mlkit-android-custom-model)
 
 Introduction
 ------------
