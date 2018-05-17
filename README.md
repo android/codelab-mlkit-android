@@ -27,7 +27,7 @@ Screenshots
 Support
 -------
 
-- Stack Overflow: http://stackoverflow.com/questions/tagged/mlkit
+- Stack Overflow: http://stackoverflow.com/questions/tagged/firebase-mlkit
 
 If you've found an error in this sample, please file an issue:
 https://github.com/googlecodelabs/ml-kit/issues
