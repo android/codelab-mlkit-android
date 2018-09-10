@@ -19,8 +19,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import com.google.firebase.ml.vision.cloud.text.FirebaseVisionCloudText;
 import com.google.firebase.codelab.mlkit.GraphicOverlay.Graphic;
+import com.google.firebase.ml.vision.document.FirebaseVisionDocumentText;
 
 import java.util.List;
 
@@ -35,10 +35,10 @@ public class CloudTextGraphic extends Graphic {
 
     private final Paint rectPaint;
     private final Paint textPaint;
-    private final FirebaseVisionCloudText.Word word;
+    private final FirebaseVisionDocumentText.Word word;
     private final GraphicOverlay overlay;
 
-    CloudTextGraphic(GraphicOverlay overlay, FirebaseVisionCloudText.Word word) {
+    CloudTextGraphic(GraphicOverlay overlay, FirebaseVisionDocumentText.Word word) {
         super(overlay);
 
         this.word = word;
@@ -71,7 +71,7 @@ public class CloudTextGraphic extends Graphic {
         StringBuilder wordStr = new StringBuilder();
         Rect wordRect = word.getBoundingBox();
         canvas.drawRect(wordRect, rectPaint);
-        List<FirebaseVisionCloudText.Symbol> symbols = word.getSymbols();
+        List<FirebaseVisionDocumentText.Symbol> symbols = word.getSymbols();
         for (int m = 0; m < symbols.size(); m++) {
             wordStr.append(symbols.get(m).getText());
         }

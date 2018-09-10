@@ -34,12 +34,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.codelab.mlkit.GraphicOverlay.Graphic;
 import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.cloud.FirebaseVisionCloudDetectorOptions;
-import com.google.firebase.ml.vision.cloud.text.FirebaseVisionCloudDocumentTextDetector;
-import com.google.firebase.ml.vision.cloud.text.FirebaseVisionCloudText;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.document.FirebaseVisionDocumentText;
+import com.google.firebase.ml.vision.document.FirebaseVisionDocumentTextRecognizer;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
-import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // TODO: Add your code here to run cloud text recognition.
     }
 
-    private void processCloudTextRecognitionResult(FirebaseVisionCloudText text) {
+    private void processCloudTextRecognitionResult(FirebaseVisionDocumentText text) {
         // TODO: Add your code here to process the cloud text recognition results.
     }
 
