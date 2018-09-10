@@ -34,12 +34,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.codelab.mlkit.GraphicOverlay.Graphic;
 import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.cloud.FirebaseVisionCloudDetectorOptions;
-import com.google.firebase.ml.vision.cloud.text.FirebaseVisionCloudDocumentTextDetector;
-import com.google.firebase.ml.vision.cloud.text.FirebaseVisionCloudText;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.document.FirebaseVisionDocumentText;
+import com.google.firebase.ml.vision.document.FirebaseVisionDocumentTextRecognizer;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
-import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,10 +89,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void runTextRecognition() {
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(mSelectedImage);
-        FirebaseVisionTextDetector detector = FirebaseVision.getInstance()
-                .getVisionTextDetector();
+        FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
+                .getOnDeviceTextRecognizer();
         mButton.setEnabled(false);
-        detector.detectInImage(image)
+        detector.processImage(image)
                 .addOnSuccessListener(
                         new OnSuccessListener<FirebaseVisionText>() {
                             @Override
@@ -114,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void processTextRecognitionResult(FirebaseVisionText texts) {
-        List<FirebaseVisionText.Block> blocks = texts.getBlocks();
+        List<FirebaseVisionText.TextBlock> blocks = texts.getTextBlocks();
         if (blocks.size() == 0) {
             showToast("No text found");
             return;
@@ -134,20 +133,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void runCloudTextRecognition() {
-        FirebaseVisionCloudDetectorOptions options =
-                new FirebaseVisionCloudDetectorOptions.Builder()
-                        .setModelType(FirebaseVisionCloudDetectorOptions.LATEST_MODEL)
-                        .setMaxResults(15)
-                        .build();
         mCloudButton.setEnabled(false);
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(mSelectedImage);
-        FirebaseVisionCloudDocumentTextDetector detector = FirebaseVision.getInstance()
-                .getVisionCloudDocumentTextDetector(options);
-        detector.detectInImage(image)
+        FirebaseVisionDocumentTextRecognizer detector = FirebaseVision.getInstance()
+                .getCloudDocumentTextRecognizer();
+        detector.processImage(image)
                 .addOnSuccessListener(
-                        new OnSuccessListener<FirebaseVisionCloudText>() {
+                        new OnSuccessListener<FirebaseVisionDocumentText>() {
                             @Override
-                            public void onSuccess(FirebaseVisionCloudText texts) {
+                            public void onSuccess(FirebaseVisionDocumentText texts) {
                                 mCloudButton.setEnabled(true);
                                 processCloudTextRecognitionResult(texts);
                             }
@@ -163,27 +157,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         });
     }
 
-    private void processCloudTextRecognitionResult(FirebaseVisionCloudText text) {
+    private void processCloudTextRecognitionResult(FirebaseVisionDocumentText text) {
         // Task completed successfully
         if (text == null) {
             showToast("No text found");
             return;
         }
         mGraphicOverlay.clear();
-        List<FirebaseVisionCloudText.Page> pages = text.getPages();
-        for (int i = 0; i < pages.size(); i++) {
-            FirebaseVisionCloudText.Page page = pages.get(i);
-            List<FirebaseVisionCloudText.Block> blocks = page.getBlocks();
-            for (int j = 0; j < blocks.size(); j++) {
-                List<FirebaseVisionCloudText.Paragraph> paragraphs = blocks.get(j).getParagraphs();
-                for (int k = 0; k < paragraphs.size(); k++) {
-                    FirebaseVisionCloudText.Paragraph paragraph = paragraphs.get(k);
-                    List<FirebaseVisionCloudText.Word> words = paragraph.getWords();
-                    for (int l = 0; l < words.size(); l++) {
-                        Graphic cloudTextGraphic = new CloudTextGraphic(mGraphicOverlay, words
-                                .get(l));
-                        mGraphicOverlay.add(cloudTextGraphic);
-                    }
+        List<FirebaseVisionDocumentText.Block> blocks = text.getBlocks();
+        for (int i = 0; i < blocks.size(); i++) {
+            List<FirebaseVisionDocumentText.Paragraph> paragraphs = blocks.get(i).getParagraphs();
+            for (int j = 0; j < paragraphs.size(); j++) {
+                List<FirebaseVisionDocumentText.Word> words = paragraphs.get(j).getWords();
+                for (int l = 0; l < words.size(); l++) {
+                    CloudTextGraphic cloudDocumentTextGraphic = new CloudTextGraphic(mGraphicOverlay,
+                            words.get(l));
+                    mGraphicOverlay.add(cloudDocumentTextGraphic);
                 }
             }
         }
