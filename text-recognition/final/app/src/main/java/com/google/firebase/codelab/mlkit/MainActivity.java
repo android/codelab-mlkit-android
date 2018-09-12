@@ -37,6 +37,9 @@ import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.document.FirebaseVisionDocumentText;
 import com.google.firebase.ml.vision.document.FirebaseVisionDocumentTextRecognizer;
+import com.google.firebase.ml.vision.face.FirebaseVisionFace;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
@@ -47,7 +50,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private static final String TAG = "MainActivity";
     private ImageView mImageView;
-    private Button mButton;
+    private Button mTextButton;
+    private Button mFaceButton;
     private Button mCloudButton;
     private Bitmap mSelectedImage;
     private GraphicOverlay mGraphicOverlay;
@@ -63,14 +67,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         mImageView = findViewById(R.id.image_view);
 
-        mButton = findViewById(R.id.button_text);
+        mTextButton = findViewById(R.id.button_text);
+        mFaceButton = findViewById(R.id.button_face);
         mCloudButton = findViewById(R.id.button_cloud_text);
 
         mGraphicOverlay = findViewById(R.id.graphic_overlay);
-        mButton.setOnClickListener(new View.OnClickListener() {
+        mTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 runTextRecognition();
+            }
+        });
+        mFaceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                runFaceContourDetection();
             }
         });
         mCloudButton.setOnClickListener(new View.OnClickListener() {
@@ -80,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
         Spinner dropdown = findViewById(R.id.spinner);
-        String[] items = new String[]{"Image 1", "Image 2", "Image 3"};
+        String[] items = new String[]{"Image 1", "Image 2", "Image 3", "Image 4"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout
                 .simple_spinner_dropdown_item, items);
         dropdown.setAdapter(adapter);
@@ -91,13 +102,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(mSelectedImage);
         FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
                 .getOnDeviceTextRecognizer();
-        mButton.setEnabled(false);
+        mTextButton.setEnabled(false);
         detector.processImage(image)
                 .addOnSuccessListener(
                         new OnSuccessListener<FirebaseVisionText>() {
                             @Override
                             public void onSuccess(FirebaseVisionText texts) {
-                                mButton.setEnabled(true);
+                                mTextButton.setEnabled(true);
                                 processTextRecognitionResult(texts);
                             }
                         })
@@ -106,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 // Task failed with an exception
-                                mButton.setEnabled(true);
+                                mTextButton.setEnabled(true);
                                 e.printStackTrace();
                             }
                         });
@@ -129,6 +140,53 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 }
             }
+        }
+    }
+
+    private void runFaceContourDetection() {
+        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(mSelectedImage);
+        FirebaseVisionFaceDetectorOptions options =
+                new FirebaseVisionFaceDetectorOptions.Builder()
+                        .setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
+                        .setContourMode(FirebaseVisionFaceDetectorOptions.ALL_CONTOURS)
+                        .enableTracking()
+                        .build();
+
+        mFaceButton.setEnabled(false);
+        FirebaseVisionFaceDetector detector = FirebaseVision.getInstance().getVisionFaceDetector(options);
+        detector.detectInImage(image)
+                .addOnSuccessListener(
+                        new OnSuccessListener<List<FirebaseVisionFace>>() {
+                            @Override
+                            public void onSuccess(List<FirebaseVisionFace> faces) {
+                                mFaceButton.setEnabled(true);
+                                processFaceContourDetectionResult(faces);
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // Task failed with an exception
+                                mFaceButton.setEnabled(true);
+                                e.printStackTrace();
+                            }
+                        });
+
+    }
+
+    private void processFaceContourDetectionResult(List<FirebaseVisionFace> faces) {
+        // Task completed successfully
+        if (faces.size() == 0) {
+            showToast("No face found");
+            return;
+        }
+        mGraphicOverlay.clear();
+        for (int i = 0; i < faces.size(); ++i) {
+            FirebaseVisionFace face = faces.get(i);
+            FaceContourGraphic faceGraphic = new FaceContourGraphic(mGraphicOverlay);
+            mGraphicOverlay.add(faceGraphic);
+            faceGraphic.updateFace(face);
         }
     }
 
@@ -238,6 +296,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case 2:
                 // Whatever you want to happen when the thrid item gets selected
                 mSelectedImage = getBitmapFromAsset(this, "nl2.jpg");
+                break;
+            case 3:
+                // Whatever you want to happen when the thrid item gets selected
+                mSelectedImage = getBitmapFromAsset(this, "obama.jpg");
                 break;
         }
         if (mSelectedImage != null) {

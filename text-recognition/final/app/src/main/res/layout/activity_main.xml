@@ -40,6 +40,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/button_face"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+    <Button
+        android:id="@+id/button_face"
+        android:layout_width="0dp"
+        android:text="Find face contour"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/button_text"
         app:layout_constraintRight_toLeftOf="@id/button_cloud_text"
         app:layout_constraintBottom_toBottomOf="parent"/>
     <Button
@@ -47,7 +55,7 @@
         android:layout_width="0dp"
         android:text="Find text (cloud)"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toRightOf="@id/button_text"
+        app:layout_constraintLeft_toRightOf="@id/button_face"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
