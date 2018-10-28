@@ -177,90 +177,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         initCustomModel();
     }
 
-    private void initCustomModel() {
-        mLabelList = loadLabelList(this);
-
-        int[] inputDims = {DIM_BATCH_SIZE, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, DIM_PIXEL_SIZE};
-        int[] outputDims = {DIM_BATCH_SIZE, mLabelList.size()};
-        try {
-            mDataOptions =
-                    new FirebaseModelInputOutputOptions.Builder()
-                            .setInputFormat(0, FirebaseModelDataType.BYTE, inputDims)
-                            .setOutputFormat(0, FirebaseModelDataType.BYTE, outputDims)
-                            .build();
-            FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions
-                    .Builder()
-                    .requireWifi()
-                    .build();
-            FirebaseLocalModelSource localSource =
-                    new FirebaseLocalModelSource.Builder("asset")
-                            .setAssetFilePath(LOCAL_MODEL_ASSET).build();
-
-            FirebaseCloudModelSource cloudSource = new FirebaseCloudModelSource.Builder
-                    (HOSTED_MODEL_NAME)
-                    .enableModelUpdates(true)
-                    .setInitialDownloadConditions(conditions)
-                    .setUpdatesDownloadConditions(conditions)  // You could also specify
-                    // different conditions
-                    // for updates
-                    .build();
-            FirebaseModelManager manager = FirebaseModelManager.getInstance();
-            manager.registerLocalModelSource(localSource);
-            manager.registerCloudModelSource(cloudSource);
-            FirebaseModelOptions modelOptions =
-                    new FirebaseModelOptions.Builder()
-                            .setCloudModelName(HOSTED_MODEL_NAME)
-                            .setLocalModelName("asset")
-                            .build();
-            mInterpreter = FirebaseModelInterpreter.getInstance(modelOptions);
-        } catch (FirebaseMLException e) {
-            showToast("Error while setting up the model");
-            e.printStackTrace();
-        }
-    }
-
-    private void runModelInference() {
-        if (mInterpreter == null) {
-            Log.e(TAG, "Image classifier has not been initialized; Skipped.");
-            return;
-        }
-        // Create input data.
-        ByteBuffer imgData = convertBitmapToByteBuffer(mSelectedImage, mSelectedImage.getWidth(),
-                mSelectedImage.getHeight());
-
-        try {
-            FirebaseModelInputs inputs = new FirebaseModelInputs.Builder().add(imgData).build();
-            // Here's where the magic happens!!
-            mInterpreter
-                    .run(inputs, mDataOptions)
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            e.printStackTrace();
-                            showToast("Error running model inference");
-                        }
-                    })
-                    .continueWith(
-                            new Continuation<FirebaseModelOutputs, List<String>>() {
-                                @Override
-                                public List<String> then(Task<FirebaseModelOutputs> task) {
-                                    byte[][] labelProbArray = task.getResult()
-                                            .<byte[][]>getOutput(0);
-                                    List<String> topLabels = getTopLabels(labelProbArray);
-                                    mGraphicOverlay.clear();
-                                    GraphicOverlay.Graphic labelGraphic = new LabelGraphic
-                                            (mGraphicOverlay, topLabels);
-                                    mGraphicOverlay.add(labelGraphic);
-                                    return topLabels;
-                                }
-                            });
-        } catch (FirebaseMLException e) {
-            e.printStackTrace();
-            showToast("Error running model inference");
-        }
-
-    }
-
     private void runTextRecognition() {
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(mSelectedImage);
         FirebaseVisionTextRecognizer recognizer = FirebaseVision.getInstance()
@@ -350,6 +266,89 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             mGraphicOverlay.add(faceGraphic);
             faceGraphic.updateFace(face);
         }
+    }
+
+    private void initCustomModel() {
+        mLabelList = loadLabelList(this);
+
+        int[] inputDims = {DIM_BATCH_SIZE, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, DIM_PIXEL_SIZE};
+        int[] outputDims = {DIM_BATCH_SIZE, mLabelList.size()};
+        try {
+            mDataOptions =
+                    new FirebaseModelInputOutputOptions.Builder()
+                            .setInputFormat(0, FirebaseModelDataType.BYTE, inputDims)
+                            .setOutputFormat(0, FirebaseModelDataType.BYTE, outputDims)
+                            .build();
+            FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions
+                    .Builder()
+                    .requireWifi()
+                    .build();
+            FirebaseCloudModelSource cloudSource = new FirebaseCloudModelSource.Builder
+                    (HOSTED_MODEL_NAME)
+                    .enableModelUpdates(true)
+                    .setInitialDownloadConditions(conditions)
+                    .setUpdatesDownloadConditions(conditions)  // You could also specify
+                    // different conditions
+                    // for updates
+                    .build();
+            FirebaseLocalModelSource localSource =
+                    new FirebaseLocalModelSource.Builder("asset")
+                            .setAssetFilePath(LOCAL_MODEL_ASSET).build();
+            FirebaseModelManager manager = FirebaseModelManager.getInstance();
+            manager.registerCloudModelSource(cloudSource);
+            manager.registerLocalModelSource(localSource);
+            FirebaseModelOptions modelOptions =
+                    new FirebaseModelOptions.Builder()
+                            .setCloudModelName(HOSTED_MODEL_NAME)
+                            .setLocalModelName("asset")
+                            .build();
+            mInterpreter = FirebaseModelInterpreter.getInstance(modelOptions);
+        } catch (FirebaseMLException e) {
+            showToast("Error while setting up the model");
+            e.printStackTrace();
+        }
+    }
+
+    private void runModelInference() {
+        if (mInterpreter == null) {
+            Log.e(TAG, "Image classifier has not been initialized; Skipped.");
+            return;
+        }
+        // Create input data.
+        ByteBuffer imgData = convertBitmapToByteBuffer(mSelectedImage, mSelectedImage.getWidth(),
+                mSelectedImage.getHeight());
+
+        try {
+            FirebaseModelInputs inputs = new FirebaseModelInputs.Builder().add(imgData).build();
+            // Here's where the magic happens!!
+            mInterpreter
+                    .run(inputs, mDataOptions)
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                            showToast("Error running model inference");
+                        }
+                    })
+                    .continueWith(
+                            new Continuation<FirebaseModelOutputs, List<String>>() {
+                                @Override
+                                public List<String> then(Task<FirebaseModelOutputs> task) {
+                                    byte[][] labelProbArray = task.getResult()
+                                            .<byte[][]>getOutput(0);
+                                    List<String> topLabels = getTopLabels(labelProbArray);
+                                    mGraphicOverlay.clear();
+                                    GraphicOverlay.Graphic labelGraphic = new LabelGraphic
+                                            (mGraphicOverlay, topLabels);
+                                    mGraphicOverlay.add(labelGraphic);
+                                    return topLabels;
+                                }
+                            });
+        } catch (FirebaseMLException e) {
+            e.printStackTrace();
+            showToast("Error running model inference");
+        }
+
     }
 
     private void runCloudTextRecognition() {
