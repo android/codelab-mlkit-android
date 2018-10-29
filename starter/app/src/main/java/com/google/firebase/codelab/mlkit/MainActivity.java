@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      * Name of the model file hosted with Firebase.
      */
     private static final String HOSTED_MODEL_NAME = "cloud_model_1";
-    private static final String LOCAL_MODEL_ASSET = "mobilenet_v1.0_224_quant.tflite";
+    private static final String LOCAL_MODEL_ASSET = "mobilenet_v1_1.0_224_quant.tflite";
     /**
      * Name of the label file stored in Assets.
      */
