@@ -15,7 +15,6 @@ package com.google.firebase.codelab.mlkit;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.util.AttributeSet;
 import android.view.View;
