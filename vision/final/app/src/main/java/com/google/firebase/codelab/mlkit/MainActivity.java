@@ -38,16 +38,16 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.codelab.mlkit.GraphicOverlay.Graphic;
 import com.google.firebase.ml.common.FirebaseMLException;
+import com.google.firebase.ml.common.modeldownload.FirebaseLocalModel;
+import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions;
+import com.google.firebase.ml.common.modeldownload.FirebaseModelManager;
+import com.google.firebase.ml.common.modeldownload.FirebaseRemoteModel;
 import com.google.firebase.ml.custom.FirebaseModelDataType;
 import com.google.firebase.ml.custom.FirebaseModelInputOutputOptions;
 import com.google.firebase.ml.custom.FirebaseModelInputs;
 import com.google.firebase.ml.custom.FirebaseModelInterpreter;
-import com.google.firebase.ml.custom.FirebaseModelManager;
 import com.google.firebase.ml.custom.FirebaseModelOptions;
 import com.google.firebase.ml.custom.FirebaseModelOutputs;
-import com.google.firebase.ml.custom.model.FirebaseCloudModelSource;
-import com.google.firebase.ml.custom.model.FirebaseLocalModelSource;
-import com.google.firebase.ml.custom.model.FirebaseModelDownloadConditions;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.document.FirebaseVisionDocumentText;
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     .Builder()
                     .requireWifi()
                     .build();
-            FirebaseCloudModelSource cloudSource = new FirebaseCloudModelSource.Builder
+            FirebaseRemoteModel remoteModel = new FirebaseRemoteModel.Builder
                     (HOSTED_MODEL_NAME)
                     .enableModelUpdates(true)
                     .setInitialDownloadConditions(conditions)
@@ -291,15 +291,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     // different conditions
                     // for updates
                     .build();
-            FirebaseLocalModelSource localSource =
-                    new FirebaseLocalModelSource.Builder("asset")
+            FirebaseLocalModel localModel =
+                    new FirebaseLocalModel.Builder("asset")
                             .setAssetFilePath(LOCAL_MODEL_ASSET).build();
             FirebaseModelManager manager = FirebaseModelManager.getInstance();
-            manager.registerCloudModelSource(cloudSource);
-            manager.registerLocalModelSource(localSource);
+            manager.registerRemoteModel(remoteModel);
+            manager.registerLocalModel(localModel);
             FirebaseModelOptions modelOptions =
                     new FirebaseModelOptions.Builder()
-                            .setCloudModelName(HOSTED_MODEL_NAME)
+                            .setRemoteModelName(HOSTED_MODEL_NAME)
                             .setLocalModelName("asset")
                             .build();
             mInterpreter = FirebaseModelInterpreter.getInstance(modelOptions);
