@@ -1,0 +1,5 @@
+        // TODO: remove at release
+        maven {
+            url "$System.env.HOME/proj/io19/mlkit-odt/m2repository"
+        }
+
