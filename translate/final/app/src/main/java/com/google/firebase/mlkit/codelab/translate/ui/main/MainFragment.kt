@@ -97,7 +97,7 @@ class MainFragment : Fragment() {
             updateTransform()
         }
         targetLangSelector.adapter = adapter
-        targetLangSelector.setSelection(adapter.getPosition(Language("es")))
+        targetLangSelector.setSelection(adapter.getPosition(Language("en")))
         targetLangSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -139,7 +139,7 @@ class MainFragment : Fragment() {
                 }
 
                 override fun surfaceCreated(holder: SurfaceHolder?) {
-                    holder?.let { drawViewfinder(it) }
+                    holder?.let { drawOverlay(it) }
                 }
 
             })
@@ -214,7 +214,7 @@ class MainFragment : Fragment() {
         viewfinder.setTransform(matrix)
     }
 
-    private fun drawViewfinder(holder: SurfaceHolder) {
+    private fun drawOverlay(holder: SurfaceHolder) {
         val canvas = holder.lockCanvas()
         val bgPaint = Paint().apply {
             alpha = 140
@@ -255,6 +255,7 @@ class MainFragment : Fragment() {
             435f * hScale,
             textPaint
         )
+        holder.unlockCanvasAndPost(canvas)
     }
 
     /**
