@@ -17,7 +17,7 @@
 
 package com.google.firebase.mlkit.codelab.translate.analyzer
 
-import android.graphics.Rect
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -30,11 +30,25 @@ import com.google.firebase.ml.vision.text.FirebaseVisionText
 import java.nio.ByteBuffer
 
 
-class TextAnalyzer(val result: MutableLiveData<String>) : ImageAnalysis.Analyzer {
+/**
+ * Analyzes the frames passed in from the camera and returns any detected text within the requested
+ * crop region.
+ *
+ * Note: to simplify the UX and code for this sample, we fix the device orientation to be vertical,
+ * and thus don't handle any rotation logic in this code.
+ */
+class TextAnalyzer(
+    private val result: MutableLiveData<String>,
+    val widthCropPercent: Int,
+    val heightCropPercent: Int
+) : ImageAnalysis.Analyzer {
     private val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
-    // Don't analyze new frames until current frame has finished processing
+    // Flag to skip analyzing new available frames until previous analysis has finished.
     private var isBusy = false
 
+    /**
+     * Helper function to associate image rotation values with Firebase Vision metadata constants.
+     */
     private fun degreesToFirebaseRotation(degrees: Int): Int = when (degrees) {
         0 -> FirebaseVisionImageMetadata.ROTATION_0
         90 -> FirebaseVisionImageMetadata.ROTATION_90
@@ -43,60 +57,27 @@ class TextAnalyzer(val result: MutableLiveData<String>) : ImageAnalysis.Analyzer
         else -> throw Exception("Rotation must be 0, 90, 180, or 270.")
     }
 
-    private fun cropByteArray(array: ByteArray, cropRect: Rect): ByteArray {
-        val croppedArray = ByteArray(cropRect.width() * cropRect.height())
-        val imageWidth = 640
-        var i = 0
-        array.forEachIndexed { index, byte ->
-            val x = index % imageWidth
-            val y = index / imageWidth
-
-            if (cropRect.left <= x && x < cropRect.right && cropRect.top <= y && y < cropRect.bottom) {
-                croppedArray[i] = byte
-                i++
-            }
-        }
-        return croppedArray
-    }
-
-    /**
-     * Helper extension function used to extract a byte array from an
-     * image plane buffer
-     */
-    private fun ByteBuffer.toByteArray(): ByteArray {
-        rewind()    // Rewind the buffer to zero
-        val data = ByteArray(remaining())
-        get(data)   // Copy the buffer into a byte array
-        return data // Return the byte array
-    }
-
     override fun analyze(imageProxy: ImageProxy, degrees: Int) {
         val mediaImage = imageProxy.image
 
         val imageRotation = degreesToFirebaseRotation(degrees)
         if (mediaImage != null && !isBusy) {
             isBusy = true
-            val buffer = mediaImage.planes[0].buffer
-            // Extract image data from callback object
-            val imageByteArray = buffer.toByteArray()
-//            Log.d(TAG, "dim: " + mediaImage.width + "x" + mediaImage.height)
-            // top and bottom are # pix from right edge, left and right are # pix from top edge
-            val data = cropByteArray(imageByteArray, Rect(200, 25, 400, 615))
-
-            val imageMetadata =
-                FirebaseVisionImageMetadata.Builder()
-                    .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_YV12).setHeight(590)
-                    .setWidth(200).setRotation(imageRotation).build()
-            recognizeTextOnDevice(data, imageMetadata).addOnCompleteListener { isBusy = false }
-
+            val bitmap = FirebaseVisionImage.fromMediaImage(mediaImage, imageRotation).bitmap
+            val croppedWidth = (bitmap.width * (1 - widthCropPercent / 100f)).toInt()
+            val croppedHeight = (bitmap.height * (1 - heightCropPercent / 100f)).toInt()
+            val x = (bitmap.width - croppedWidth) / 2
+            val y = (bitmap.height - croppedHeight) / 2
+            val cropBmp = Bitmap.createBitmap(bitmap, x, y, croppedWidth, croppedHeight)
+            recognizeTextOnDevice(FirebaseVisionImage.fromBitmap(cropBmp)).addOnCompleteListener {
+                isBusy = false
+            }
         }
     }
 
     private fun recognizeTextOnDevice(
-        imageByteArray: ByteArray,
-        metadata: FirebaseVisionImageMetadata
+        image: FirebaseVisionImage
     ): Task<FirebaseVisionText> {
-        val image = FirebaseVisionImage.fromByteArray(imageByteArray, metadata)
         // Pass image to an ML Kit Vision API
         return detector.processImage(image)
             .addOnSuccessListener { firebaseVisionText ->
@@ -106,7 +87,7 @@ class TextAnalyzer(val result: MutableLiveData<String>) : ImageAnalysis.Analyzer
             .addOnFailureListener { exception ->
                 // Task failed with an exception
                 exception.message.let {
-                    Log.e(Companion.TAG, it)
+                    Log.e(TAG, it)
                 }
             }
     }

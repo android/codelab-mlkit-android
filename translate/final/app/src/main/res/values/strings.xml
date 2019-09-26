@@ -19,4 +19,6 @@
     <string name="app_name">ML Kit Translate Codelab</string>
     <string name="unknown_error">Unknown error occurred.</string>
     <string name="content_description_google_translate_attribution">Google Translate attribution</string>
+    <string name="overlay_help">Center text in box</string>
+    <string name="downloading_model_files">Downloading model files...</string>
 </resources>

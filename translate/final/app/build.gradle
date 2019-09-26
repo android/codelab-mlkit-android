@@ -63,8 +63,8 @@ dependencies {
 
     // Add ML Kit dependencies
     implementation 'com.google.firebase:firebase-ml-vision:23.0.0'
-    implementation 'com.google.firebase:firebase-ml-natural-language:21.0.2'
-    implementation 'com.google.firebase:firebase-ml-natural-language-language-id-model:20.0.5'
-    implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.5'
+    implementation 'com.google.firebase:firebase-ml-natural-language:21.0.3'
+    implementation 'com.google.firebase:firebase-ml-natural-language-language-id-model:20.0.6'
+    implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.6'
 }
 apply plugin: 'com.google.gms.google-services'
