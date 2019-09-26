@@ -25,10 +25,13 @@ import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
 import android.graphics.RectF
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.view.LayoutInflater
@@ -38,6 +41,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
@@ -64,6 +68,8 @@ class MainFragment : Fragment() {
         private const val REQUEST_CODE_PERMISSIONS = 10
         // This is an array of all the permission specified in the manifest
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private const val WIDTH_CROP_PERCENT = 8
+        private const val HEIGHT_CROP_PERCENT = 74
     }
 
     private lateinit var viewModel: MainViewModel
@@ -116,11 +122,18 @@ class MainFragment : Fragment() {
             resultOrError?.let {
                 if (it.error != null) {
                     translatedText.error = resultOrError.error?.localizedMessage
-                    // TODO: Set error color
                 } else {
                     translatedText.text = resultOrError.result
                 }
             }
+        })
+        viewModel.modelDownloading.observe(this, Observer { isDownloading ->
+            progressBar.visibility = if (isDownloading) {
+                View.VISIBLE
+            } else {
+                View.INVISIBLE
+            }
+            progressText.visibility = progressBar.visibility
         })
 
         overlay.apply {
@@ -150,7 +163,7 @@ class MainFragment : Fragment() {
         // Create configuration object for the viewfinder use case
         val previewConfig = PreviewConfig.Builder().apply {
             setTargetAspectRatio(Rational(1, 1))
-            setTargetResolution(Size(640, 640))
+
         }.build()
 
         // Build the viewfinder use case
@@ -186,7 +199,11 @@ class MainFragment : Fragment() {
         viewModel.sourceText.observe(this, Observer { srcText.text = it })
         val analyzerUseCase = ImageAnalysis(analyzerConfig).apply {
             analyzer =
-                TextAnalyzer(viewModel.sourceText)
+                TextAnalyzer(
+                    viewModel.sourceText,
+                    widthCropPercent = WIDTH_CROP_PERCENT,
+                    heightCropPercent = HEIGHT_CROP_PERCENT
+                )
         }
 
         // Bind use cases to lifecycle
@@ -228,18 +245,16 @@ class MainFragment : Fragment() {
         outlinePaint.style = Paint.Style.STROKE
         outlinePaint.color = Color.WHITE
         outlinePaint.strokeWidth = 4f
-        val sWidth = holder.surfaceFrame.width()
-        val sHeight = holder.surfaceFrame.height()
-        val wScale = sWidth / 640f
-        val hScale = sHeight / 480f * 480f / 640f
+        val surfaceWidth = holder.surfaceFrame.width()
+        val surfaceHeight = holder.surfaceFrame.height()
 
         val cornerRadius = 25f
-        val rect = RectF(
-            25 * wScale,
-            200 * hScale,
-            615 * wScale,
-            400 * hScale
-        )
+        // Set rect centered in frame
+        val rectTop = surfaceHeight * HEIGHT_CROP_PERCENT / 2 / 100f
+        val rectLeft = surfaceWidth * WIDTH_CROP_PERCENT / 2 / 100f
+        val rectRight = surfaceWidth * (1 - WIDTH_CROP_PERCENT / 2 / 100f)
+        val rectBottom = surfaceHeight * (1 - HEIGHT_CROP_PERCENT / 2 / 100f)
+        val rect = RectF(rectLeft, rectTop, rectRight, rectBottom)
         canvas.drawRoundRect(
             rect, cornerRadius, cornerRadius, rectPaint
         )
@@ -249,12 +264,13 @@ class MainFragment : Fragment() {
         val textPaint = Paint()
         textPaint.color = Color.WHITE
         textPaint.textSize = 50F
-        canvas.drawText(
-            "Center text in box",
-            220f * wScale,
-            435f * hScale,
-            textPaint
-        )
+
+        val overlayText = getString(R.string.overlay_help)
+        val textBounds = Rect()
+        textPaint.getTextBounds(overlayText, 0, overlayText.length, textBounds)
+        val textX = (surfaceWidth - textBounds.width()) / 2f
+        val textY = rectBottom + textBounds.height() + 15f // put text below rect and 15f padding
+        canvas.drawText(getString(R.string.overlay_help), textX, textY, textPaint)
         holder.unlockCanvasAndPost(canvas)
     }
 

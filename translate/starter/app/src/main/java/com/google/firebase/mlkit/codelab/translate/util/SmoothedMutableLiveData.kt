@@ -17,6 +17,7 @@
 
 package com.google.firebase.mlkit.codelab.translate.util
 
+import android.os.Handler
 import androidx.lifecycle.MutableLiveData
 
 /**
@@ -25,27 +26,17 @@ import androidx.lifecycle.MutableLiveData
  *
  * @param duration time delay to wait in milliseconds
  */
-class SmoothedMutableLiveData<T>(private val duration: Int) : MutableLiveData<T>() {
-    private var startTime = System.currentTimeMillis()
+class SmoothedMutableLiveData<T>(private val duration: Long) : MutableLiveData<T>() {
     private var pendingValue: T? = null
+    private val runnable = Runnable {
+        super.setValue(pendingValue)
+    }
 
     override fun setValue(value: T) {
         if (value != pendingValue) {
-            resetInterval()
             pendingValue = value
-        } else {
-            if (hasIntervalElapsed()) {
-                resetInterval()
-                super.setValue(value)
-            }
+            Handler().removeCallbacks(runnable)
+            Handler().postDelayed(runnable, duration)
         }
-    }
-
-    private fun hasIntervalElapsed(): Boolean {
-        return System.currentTimeMillis() - startTime > duration
-    }
-
-    private fun resetInterval() {
-        startTime = System.currentTimeMillis()
     }
 }

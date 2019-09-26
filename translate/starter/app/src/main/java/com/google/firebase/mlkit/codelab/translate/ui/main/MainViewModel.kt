@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2019 Google Inc. All Rights Reserved.
  *
@@ -18,14 +19,17 @@
 package com.google.firebase.mlkit.codelab.translate.ui.main
 
 import android.app.Application
+import android.os.Handler
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
+import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateModelManager
@@ -36,16 +40,19 @@ import com.google.firebase.mlkit.codelab.translate.util.ResultOrError
 import com.google.firebase.mlkit.codelab.translate.util.SmoothedMutableLiveData
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+    private val firebaseLanguageIdentification =
+        FirebaseNaturalLanguage.getInstance().languageIdentification
     private val modelManager: FirebaseTranslateModelManager =
         FirebaseTranslateModelManager.getInstance()
-    var targetLang = MutableLiveData<Language>()
-    var sourceText = SmoothedMutableLiveData<String>(SMOOTHING_DURATION)
-    var translatedText = MediatorLiveData<ResultOrError>()
-    var availableModels = MutableLiveData<List<String>>()
+    val targetLang = MutableLiveData<Language>()
+    val sourceText = SmoothedMutableLiveData<String>(SMOOTHING_DURATION)
+    val translatedText = MediatorLiveData<ResultOrError>()
+    val translating = MutableLiveData<Boolean>()
+    val modelDownloading = SmoothedMutableLiveData<Boolean>(SMOOTHING_DURATION)
+
+    var modelDownloadTask: Task<Void> = Tasks.forCanceled<Void>()
 
     var sourceLang = Transformations.switchMap(sourceText) { text ->
-        // TODO: Handle error reporting
-        // TODO: Very first word doesn't seem to be identified. (show processing delay?)
         val result = MutableLiveData<Language>()
 
         // TODO: Add code here to use ML Kit to identify the language of some text.
@@ -63,39 +70,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         .map { Language(FirebaseTranslateLanguage.languageCodeForLanguage(it)) }
 
     init {
+        modelDownloading.setValue(false)
+        translating.value = false
         // Create a translation result or error object.
         val processTranslation =
             OnCompleteListener<String> { task ->
                 if (task.isSuccessful) {
                     translatedText.value = ResultOrError(task.result, null)
                 } else {
+                    if (task.isCanceled) {
+                        // Tasks are cancelled for reasons such as gating; ignore.
+                        return@OnCompleteListener
+                    }
                     translatedText.value = ResultOrError(null, task.exception)
                 }
-                // Update the list of downloaded models as more may have been
-                // automatically downloaded due to requested translation.
-                fetchDownloadedModels()
-                // TODO: Maybe don't need to fetch
             }
         // Start translation if any of the following change: detected text, source lang, target lang.
         translatedText.addSource(sourceText) { translate().addOnCompleteListener(processTranslation) }
         translatedText.addSource(sourceLang) { translate().addOnCompleteListener(processTranslation) }
         translatedText.addSource(targetLang) { translate().addOnCompleteListener(processTranslation) }
-
-        // Update the list of downloaded models.
-        fetchDownloadedModels()
-    }
-
-    // Updates the list of downloaded models available for local translation.
-    private fun fetchDownloadedModels() {
-        modelManager.getAvailableModels(FirebaseApp.getInstance())
-            .addOnSuccessListener { remoteModels ->
-                availableModels.value =
-                    remoteModels.sortedBy { it.languageCode }.map { it.languageCode }
-            }
     }
 
     companion object {
         // Amount of time (in milliseconds) to wait for detected text to settle
-        private const val SMOOTHING_DURATION = 50
+        private const val SMOOTHING_DURATION = 50L
     }
 }

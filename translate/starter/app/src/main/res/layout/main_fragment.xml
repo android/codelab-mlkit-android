@@ -57,25 +57,33 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="4dp"
-        app:layout_constraintBottom_toTopOf="@+id/srcText"
+        app:layout_constraintBottom_toTopOf="@+id/srcTextScrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/middle"
         tools:text="source lang" />
 
-    <TextView
-        android:id="@+id/srcText"
-        style="@style/SrcText"
+    <ScrollView
+        android:id="@+id/srcTextScrollView"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:maxLines="2"
+        android:layout_marginBottom="4dp"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toTopOf="@+id/divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/srcLang"
-        tools:text="source text" />
+        app:layout_constraintTop_toBottomOf="@id/srcLang">
+
+        <TextView
+            android:id="@+id/srcText"
+            style="@style/SrcText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            tools:text="source text" />
+    </ScrollView>
 
     <View
         android:id="@+id/divider"
@@ -87,7 +95,7 @@
         app:layout_constraintBottom_toTopOf="@+id/targetLangSelector"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/srcText" />
+        app:layout_constraintTop_toBottomOf="@id/srcTextScrollView" />
 
     <Spinner
         android:id="@+id/targetLangSelector"
@@ -97,20 +105,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider" />
 
-    <TextView
-        android:id="@+id/translatedText"
-        style="@style/TranslatedText"
+    <ScrollView
+        android:id="@+id/translatedTextScrollView"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
         android:layout_marginBottom="4dp"
-        android:maxLines="2"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toTopOf="@+id/divider2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/targetLangSelector"
-        tools:text="translated text" />
+        app:layout_constraintTop_toBottomOf="@id/targetLangSelector">
+
+        <TextView
+            android:id="@+id/translatedText"
+            style="@style/TranslatedText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="4dp"
+            tools:text="translated text" />
+    </ScrollView>
 
     <View
         android:id="@+id/divider2"
