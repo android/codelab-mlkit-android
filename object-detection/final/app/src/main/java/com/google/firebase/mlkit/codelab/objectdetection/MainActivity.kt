@@ -51,12 +51,12 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        captureImageFab.setOnClickListener { _ ->
+        captureImageFab.setOnClickListener {
             val takePhotoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (takePhotoIntent.resolveActivity(packageManager) != null) {
                 val values = ContentValues()
                 values.put(MediaStore.Images.Media.TITLE, "MLKit_codelab")
-                outputFileUri = getContentResolver()
+                outputFileUri = contentResolver
                     .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
 
                 takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri)
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(),
             .addOnSuccessListener {
                 // Task completed successfully
                 // Post-detection processing : draw result
-                val drawingView = DrawingView(getApplicationContext(), it)
+                val drawingView = DrawingView(applicationContext, it)
                 drawingView.draw(Canvas(bitmap))
                 runOnUiThread {
                     imageView.setImageBitmap(bitmap)
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity(),
     private fun getCapturedImage(): Bitmap {
 
         val srcImage = FirebaseVisionImage
-            .fromFilePath(baseContext, outputFileUri).getBitmap()
+            .fromFilePath(baseContext, outputFileUri).bitmap
 
         // crop image to match imageView's aspect ratio
         val scaleFactor = Math.min(

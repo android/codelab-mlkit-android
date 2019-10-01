@@ -45,12 +45,12 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        captureImageFab.setOnClickListener { _ ->
+        captureImageFab.setOnClickListener {
             val takePhotoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (takePhotoIntent.resolveActivity(packageManager) != null) {
                 val values = ContentValues()
                 values.put(MediaStore.Images.Media.TITLE, "MLKit_codelab")
-                outputFileUri = getContentResolver()
+                outputFileUri = contentResolver
                     .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
 
                 takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri)
