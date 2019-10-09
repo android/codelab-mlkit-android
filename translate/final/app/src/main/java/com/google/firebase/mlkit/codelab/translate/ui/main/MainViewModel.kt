@@ -23,18 +23,13 @@ import android.os.Handler
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
-import com.google.firebase.FirebaseApp
-import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage
-import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateModelManager
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions
-import com.google.firebase.mlkit.codelab.translate.R
 import com.google.firebase.mlkit.codelab.translate.util.Language
 import com.google.firebase.mlkit.codelab.translate.util.ResultOrError
 import com.google.firebase.mlkit.codelab.translate.util.SmoothedMutableLiveData
@@ -42,17 +37,15 @@ import com.google.firebase.mlkit.codelab.translate.util.SmoothedMutableLiveData
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val firebaseLanguageIdentification =
         FirebaseNaturalLanguage.getInstance().languageIdentification
-    private val modelManager: FirebaseTranslateModelManager =
-        FirebaseTranslateModelManager.getInstance()
     val targetLang = MutableLiveData<Language>()
     val sourceText = SmoothedMutableLiveData<String>(SMOOTHING_DURATION)
     val translatedText = MediatorLiveData<ResultOrError>()
-    val translating = MutableLiveData<Boolean>()
+    private val translating = MutableLiveData<Boolean>()
     val modelDownloading = SmoothedMutableLiveData<Boolean>(SMOOTHING_DURATION)
 
-    var modelDownloadTask: Task<Void> = Tasks.forCanceled<Void>()
+    private var modelDownloadTask: Task<Void> = Tasks.forCanceled()
 
-    var sourceLang = Transformations.switchMap(sourceText) { text ->
+    val sourceLang = Transformations.switchMap(sourceText) { text ->
         val result = MutableLiveData<Language>()
         firebaseLanguageIdentification.identifyLanguage(text)
             .addOnSuccessListener {
@@ -62,7 +55,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         result
     }
 
-    fun translate(): Task<String> {
+    private fun translate(): Task<String> {
         val text = sourceText.value
         val source = sourceLang.value
         val target = targetLang.value
@@ -90,15 +83,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             modelDownloading.setValue(false)
         }
         translating.value = true
-        return modelDownloadTask.continueWithTask { task ->
-            if (task.isSuccessful) {
-                translator.translate(text)
-            } else {
-                Tasks.forException<String>(
-                    task.exception
-                        ?: Exception(getApplication<Application>().getString(R.string.unknown_error))
-                )
-            }
+        return modelDownloadTask.onSuccessTask {
+            translator.translate(text)
         }.addOnCompleteListener {
             translating.value = false
         }

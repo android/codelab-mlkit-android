@@ -62,9 +62,9 @@ dependencies {
     implementation "androidx.camera:camera-camera2:${camerax_version}"
 
     // Add ML Kit dependencies
-    implementation 'com.google.firebase:firebase-ml-vision:23.0.0'
-    implementation 'com.google.firebase:firebase-ml-natural-language:21.0.3'
-    implementation 'com.google.firebase:firebase-ml-natural-language-language-id-model:20.0.6'
-    implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.6'
+    implementation 'com.google.firebase:firebase-ml-vision:24.0.0'
+    implementation 'com.google.firebase:firebase-ml-natural-language:22.0.0'
+    implementation 'com.google.firebase:firebase-ml-natural-language-language-id-model:20.0.7'
+    implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.7'
 }
 apply plugin: 'com.google.gms.google-services'
