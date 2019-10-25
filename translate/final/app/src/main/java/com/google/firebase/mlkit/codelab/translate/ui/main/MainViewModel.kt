@@ -49,7 +49,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val translators =
         object : LruCache<FirebaseTranslatorOptions, FirebaseTranslator>(NUM_TRANSLATORS) {
             override fun create(options: FirebaseTranslatorOptions): FirebaseTranslator {
-                return FirebaseNaturalLanguage.getInstance().getTranslator(options);
+                return FirebaseNaturalLanguage.getInstance().getTranslator(options)
             }
 
             override fun entryRemoved(
@@ -58,7 +58,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 oldValue: FirebaseTranslator,
                 newValue: FirebaseTranslator?
             ) {
-                oldValue.close();
+                oldValue.close()
             }
         }
 
@@ -91,7 +91,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .setSourceLanguage(sourceLangCode)
             .setTargetLanguage(targetLangCode)
             .build()
-        val translator = translators[options];
+        val translator = translators[options]
         modelDownloading.setValue(true)
 
         // Register watchdog to unblock long running downloads
