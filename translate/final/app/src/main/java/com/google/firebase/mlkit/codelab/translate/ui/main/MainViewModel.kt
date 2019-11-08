@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 Google Inc. All Rights Reserved.
  *
@@ -20,6 +19,7 @@ package com.google.firebase.mlkit.codelab.translate.ui.main
 
 import android.app.Application
 import android.os.Handler
+import android.util.LruCache
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage
+import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions
 import com.google.firebase.mlkit.codelab.translate.util.Language
 import com.google.firebase.mlkit.codelab.translate.util.ResultOrError
@@ -44,6 +45,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val modelDownloading = SmoothedMutableLiveData<Boolean>(SMOOTHING_DURATION)
 
     private var modelDownloadTask: Task<Void> = Tasks.forCanceled()
+
+    private val translators =
+        object : LruCache<FirebaseTranslatorOptions, FirebaseTranslator>(NUM_TRANSLATORS) {
+            override fun create(options: FirebaseTranslatorOptions): FirebaseTranslator {
+                return FirebaseNaturalLanguage.getInstance().getTranslator(options)
+            }
+
+            override fun entryRemoved(
+                evicted: Boolean,
+                key: FirebaseTranslatorOptions,
+                oldValue: FirebaseTranslator,
+                newValue: FirebaseTranslator?
+            ) {
+                oldValue.close()
+            }
+        }
 
     val sourceLang = Transformations.switchMap(sourceText) { text ->
         val result = MutableLiveData<Language>()
@@ -74,7 +91,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .setSourceLanguage(sourceLangCode)
             .setTargetLanguage(targetLangCode)
             .build()
-        val translator = FirebaseNaturalLanguage.getInstance().getTranslator(options)
+        val translator = translators[options]
         modelDownloading.setValue(true)
 
         // Register watchdog to unblock long running downloads
@@ -119,5 +136,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         // Amount of time (in milliseconds) to wait for detected text to settle
         private const val SMOOTHING_DURATION = 50L
+
+        private const val NUM_TRANSLATORS = 1
     }
 }
