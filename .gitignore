@@ -8,6 +8,7 @@ build/
 *.aar
 *.zip
 google-services.json
+*.tflite
 
 .project
 .settings
