@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:contentDescription="@string/select_image_for_text_recognition" />
-    <com.google.firebase.codelab.mlkit.GraphicOverlay
+    <com.google.codelab.mlkit.GraphicOverlay
         android:id="@+id/graphic_overlay"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -43,29 +43,14 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/button_face"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
     <Button
         android:id="@+id/button_face"
         android:layout_width="0dp"
+        android:layout_height="55dp"
         android:text="@string/find_face_contour_button"
-        android:layout_height="55dp"
-        app:layout_constraintLeft_toRightOf="@id/button_text"
-        app:layout_constraintRight_toLeftOf="@id/button_cloud_text"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-    <Button
-        android:id="@+id/button_cloud_text"
-        android:layout_width="0dp"
-        android:text="@string/find_text_cloud_button"
-        android:layout_height="55dp"
-        app:layout_constraintLeft_toRightOf="@id/button_face"
-        app:layout_constraintRight_toLeftOf="@id/button_run_custom_model"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-    <Button
-        android:id="@+id/button_run_custom_model"
-        android:text="@string/find_objects_button"
-        android:layout_width="0dp"
-        android:layout_height="55dp"
-        app:layout_constraintLeft_toRightOf="@id/button_cloud_text"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/button_text" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
