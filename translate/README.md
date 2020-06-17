@@ -15,10 +15,9 @@ The goal is to make it as easy as possible to integrate ML Kit into your app wit
   ```
   git clone https://github.com/googlecodelabs/mlkit-android
   ```
-2. [Create a Firebase project in the Firebase console](https://firebase.google.com/docs/android/setup),if you don't already have one.
-3. Add a new Android app into your Firebase project with a package name like ***com.google.firebase.mlkit.codelab.translate***.
-4. Download `google-services.json` from the newly added app and add it to the app/ directory.
-5. Build and run it on a physical device (the simulator isn't recommended, as the app needs to use the camera on the device).
+2. Import the project in the `translate/starter` directory. This is the starter app that doesn't have the ML Kit functionalies implemented yet. You will need to follow the codelab [here](https://codelabs.developers.google.com/codelabs/mlkit-android-translate) in order to build out the app so that it can recognize and translate text.
+3. Alternatively, if you don't want to follow the codelab to build out the app, the completed version of the app can be found [here](https://github.com/googlesamples/mlkit/tree/master/android/translate-showcase).
+3. Build and run it on a physical device (the simulator isn't recommended, as the app needs to use the camera on the device).
 
 ## How to use the app
 

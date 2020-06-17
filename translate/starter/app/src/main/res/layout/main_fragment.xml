@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 Google Inc. All Rights Reserved.
+  ~ Copyright 2020 Google Inc. All Rights Reserved.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.MainFragment">
+    tools:context="com.google.mlkit.showcase.translate.main.MainFragment">
 
-    <TextureView
+    <androidx.camera.view.PreviewView
         android:id="@+id/viewfinder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -140,7 +140,7 @@
         app:layout_constraintBottom_toTopOf="@id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/translatedText" />
+        app:layout_constraintTop_toBottomOf="@id/translatedTextScrollView" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -150,6 +150,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="4dp"
+        android:contentDescription="@string/content_description_google_translate_attribution"
         android:scaleType="fitCenter"
         android:src="@drawable/greyscale_regular_3x"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -157,5 +158,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider2" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/targetLangSelector"
+        app:layout_constraintTop_toTopOf="@id/targetLangSelector"
+        app:layout_constraintBottom_toBottomOf="@id/targetLangSelector" />
+
+    <TextView
+        android:id="@+id/progressText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/downloading_model_files"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/progressBar"
+        app:layout_constraintBottom_toBottomOf="@id/progressBar"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="@id/progressBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
