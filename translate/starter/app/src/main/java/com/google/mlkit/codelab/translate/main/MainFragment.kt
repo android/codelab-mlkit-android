@@ -42,6 +42,7 @@ import androidx.lifecycle.Observer
 import com.google.mlkit.codelab.translate.R
 import com.google.mlkit.codelab.translate.analyzer.TextAnalyzer
 import com.google.mlkit.codelab.translate.util.Language
+import com.google.mlkit.codelab.translate.util.ScopedExecutor
 import kotlinx.android.synthetic.main.main_fragment.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -83,6 +84,8 @@ class MainFragment : Fragment() {
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
 
+    private lateinit var scopedExecutor: ScopedExecutor
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -95,6 +98,7 @@ class MainFragment : Fragment() {
 
         // Shut down our background executor
         cameraExecutor.shutdown()
+        scopedExecutor.shutdown()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -105,6 +109,7 @@ class MainFragment : Fragment() {
 
         // Initialize our background executor
         cameraExecutor = Executors.newSingleThreadExecutor()
+        scopedExecutor = ScopedExecutor(cameraExecutor)
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -228,6 +233,7 @@ class MainFragment : Fragment() {
                     cameraExecutor
                     , TextAnalyzer(
                         requireContext(),
+                        lifecycle,
                         viewModel.sourceText,
                         viewModel.imageCropPercentages
                     )

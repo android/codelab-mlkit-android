@@ -78,6 +78,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         result
     }
 
+    override fun onCleared() {
+        // TODO Shut down ML Kit clients.
+    }
+
     private fun translate(): Task<String> {
         // TODO
         return Tasks.forResult("") // replace this with your code
