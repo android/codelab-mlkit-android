@@ -94,11 +94,12 @@ class TextAnalyzer(
         val croppedBitmap =
             ImageUtils.rotateAndCrop(convertImageToBitmap, rotationDegrees, cropRect)
 
-        // TODO call recognizeTextOnDevice() once implemented
+        // TODO call recognizeText() once implemented
     }
 
-    // TODO Implement recognizeTextOnDevice()
-    fun recognizeTextOnDevice() {}
+    fun recognizeText() {
+        // TODO Use ML Kit's TextRecognition to analyze frames from the camera live feed.
+    }
 
     private fun getErrorMessage(exception: Exception): String? {
         val mlKitException = exception as? MlKitException ?: return exception.message

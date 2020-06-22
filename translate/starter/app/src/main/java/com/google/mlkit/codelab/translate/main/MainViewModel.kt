@@ -43,7 +43,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // TODO Instantiate LanguageIdentification
     val targetLang = MutableLiveData<Language>()
     val sourceText = SmoothedMutableLiveData<String>(SMOOTHING_DURATION)
-    // We set desired crop percentages to avoid having the analyze the whole image from the live
+
+    // We set desired crop percentages to avoid having to analyze the whole image from the live
     // camera feed. However, we are not guaranteed what aspect ratio we will get from the camera, so
     // we use the first frame we get back from the camera to update these crop percentages based on
     // the actual aspect ratio of images.
@@ -83,7 +84,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun translate(): Task<String> {
-        // TODO
+        // TODO Take the source language value, target language value, and the source text and
+        //  perform the translation.
+        //  If the chosen target language model has not been downloaded to the device yet,
+        //  call downloadModelIfNeeded() and then proceed with the translation.
         return Tasks.forResult("") // replace this with your code
     }
 
