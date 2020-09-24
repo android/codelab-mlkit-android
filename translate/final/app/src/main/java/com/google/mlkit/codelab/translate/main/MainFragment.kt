@@ -255,7 +255,7 @@ class MainFragment : Fragment() {
             camera = cameraProvider.bindToLifecycle(
                 this, cameraSelector, preview, imageAnalyzer
             )
-            preview.setSurfaceProvider(viewFinder.createSurfaceProvider())
+            preview.setSurfaceProvider(viewFinder.surfaceProvider)
         } catch (exc: IllegalStateException) {
             Log.e(TAG, "Use case binding failed. This must be running on main thread.", exc)
         }
