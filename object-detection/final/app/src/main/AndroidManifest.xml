@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.mlkit.objectdetection">
+    package="com.google.mlkit.codelab.objectdetection">
 
     <application
         android:allowBackup="true"
@@ -19,7 +19,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.google.mlkit.objectdetection.fileprovider"
+            android:authorities="com.google.mlkit.codelab.objectdetection.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

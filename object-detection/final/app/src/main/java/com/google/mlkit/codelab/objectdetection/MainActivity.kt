@@ -1,4 +1,4 @@
-package com.google.mlkit.objectdetection
+package com.google.mlkit.codelab.objectdetection
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -245,7 +245,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 photoFile?.also {
                     val photoURI: Uri = FileProvider.getUriForFile(
                         this,
-                        "com.google.mlkit.objectdetection.fileprovider",
+                        "com.google.mlkit.codelab.objectdetection.fileprovider",
                         it
                     )
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
