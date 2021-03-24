@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "MLKit Object Detection Codelab - Final"
+rootProject.name = "MLKit Object Detection Codelab"
