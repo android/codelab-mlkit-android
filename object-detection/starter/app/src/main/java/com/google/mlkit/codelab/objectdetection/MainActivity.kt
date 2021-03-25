@@ -32,10 +32,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.objects.DetectedObject
-import com.google.mlkit.vision.objects.ObjectDetection
-import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -109,38 +105,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      * ML Kit Object Detection function. We'll add ML Kit code here in the codelab.
      */
     private fun runObjectDetection(bitmap: Bitmap) {
-        val image = InputImage.fromBitmap(bitmap, 0)
 
-        val options = ObjectDetectorOptions.Builder()
-            .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
-            .enableMultipleObjects()
-            .enableClassification()
-            .build()
-        val objectDetector = ObjectDetection.getClient(options)
-
-        objectDetector.process(image).addOnSuccessListener { results ->
-            debugPrint(results)
-
-            // Parse ML Kit's DetectedObject and create corresponding visualization data
-            val detectedObjects = results.map {
-                var text = "Unknown"
-
-                // We will show the top confident detection result if it exist
-                if (it.labels.isNotEmpty()) {
-                    val firstLabel = it.labels.first()
-                    text = "${firstLabel.text}, ${firstLabel.confidence.times(100).toInt()}%"
-                }
-                BoxWithText(it.boundingBox, text)
-            }
-
-            // Draw the detection result on the input bitmap
-            val visualizedResult = drawDetectionResult(bitmap, detectedObjects)
-
-            // Show the detection result on the app screen
-            inputImageView.setImageBitmap(visualizedResult)
-        }.addOnFailureListener {
-            Log.e(TAG, it.message.toString())
-        }
     }
 
     /**
@@ -315,22 +280,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         return outputBitmap
     }
 
-    /**
-     * Print out the object detection result to Logcat.
-     */
-    private fun debugPrint(detectedObjects: List<DetectedObject>) {
-        detectedObjects.forEachIndexed { index, detectedObject ->
-            val box = detectedObject.boundingBox
-
-            Log.d(TAG, "Detected object: $index")
-            Log.d(TAG, " trackingId: ${detectedObject.trackingId}")
-            Log.d(TAG, " boundingBox: (${box.left}, ${box.top}) - (${box.right},${box.bottom})")
-            detectedObject.labels.forEach {
-                Log.d(TAG, " categories: ${it.text}")
-                Log.d(TAG, " confidence: ${it.confidence}")
-            }
-        }
-    }
 }
 
 /**

@@ -45,5 +45,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     // MLKit
-    implementation 'com.google.mlkit:object-detection:16.2.3'
+
 }
