@@ -1,8 +1,9 @@
 Codelabs for ML Kit
 ============
 
-This repository contains the code for the ML Kit codelabs:
+This repository contains the code for the following ML Kit codelabs:
 * [Recognize text and facial features with ML Kit](https://g.co/codelabs/mlkit-android)
+* [Recognize, Identify Language and Translate text with ML Kit and CameraX: Android](https://g.co/codelabs/mlkit-android-translate)
 
 Introduction
 ------------
